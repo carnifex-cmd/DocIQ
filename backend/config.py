@@ -8,9 +8,9 @@ from dotenv import load_dotenv
 
 
 BASE_DIR = Path(__file__).resolve().parent
-FALLBACK_ANSWER = "I could not find this in the uploaded documents."
+FALLBACK_ANSWER = "I could not find this in the indexed documents."
 EMBEDDING_PROVIDER_CHANGED_MESSAGE = (
-    "Embedding provider changed. Delete backend/chroma_db and re-upload documents."
+    "Embedding provider changed. Delete backend/chroma_db and re-index the documents."
 )
 SUPPORTED_LLM_PROVIDERS = {"openai", "groq"}
 SUPPORTED_EMBEDDING_PROVIDERS = {"openai", "huggingface"}
@@ -33,6 +33,7 @@ class AppConfig:
     groq_chat_model: str
     hf_embedding_model: str
     frontend_origins: list[str]
+    documents_dir: Path
 
     @property
     def embedding_model(self) -> str:
@@ -54,6 +55,13 @@ def _require_api_key(key_name: str) -> str:
     if not value:
         raise ConfigError(f"{key_name} is required for the selected provider setup.")
     return value
+
+
+def _resolve_documents_dir(path_value: str) -> Path:
+    candidate = Path(path_value.strip() or "documents")
+    if not candidate.is_absolute():
+        candidate = BASE_DIR / candidate
+    return candidate.resolve()
 
 
 def load_settings() -> AppConfig:
@@ -104,6 +112,7 @@ def load_settings() -> AppConfig:
         groq_chat_model=os.getenv("GROQ_CHAT_MODEL", "llama-3.1-8b-instant"),
         hf_embedding_model=os.getenv("HF_EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5"),
         frontend_origins=frontend_origins,
+        documents_dir=_resolve_documents_dir(os.getenv("DOCUMENTS_DIR", "documents")),
     )
 
 

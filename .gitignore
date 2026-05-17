@@ -6,3 +6,4 @@ node_modules/
 backend/uploads/
 backend/chroma_db/
 backend/.venv/
+documents/

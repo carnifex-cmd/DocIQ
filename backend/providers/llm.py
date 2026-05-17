@@ -28,7 +28,10 @@ def normalize_answer(answer: str) -> str:
     cleaned_answer = answer.strip()
     if not cleaned_answer:
         return FALLBACK_ANSWER
-    if "could not find" in cleaned_answer.lower() and "uploaded documents" in cleaned_answer.lower():
+    lowered_answer = cleaned_answer.lower()
+    if "could not find" in lowered_answer and (
+        "uploaded documents" in lowered_answer or "indexed documents" in lowered_answer
+    ):
         return FALLBACK_ANSWER
     return cleaned_answer
 
